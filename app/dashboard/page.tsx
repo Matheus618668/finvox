@@ -7,7 +7,8 @@ import { formatCurrency, formatDate, formatMonth } from '@/lib/utils'
 import { TrendingUp, TrendingDown, Wallet, Plus, Mic, ChevronLeft, ChevronRight } from 'lucide-react'
 import VoiceInputModal from '@/components/voice/VoiceInputModal'
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, Legend
 } from 'recharts'
 
 export default function DashboardPage() {
@@ -36,6 +37,27 @@ export default function DashboardPage() {
     const dayTxs = transactions.filter(t => t.date === dayStr)
     return {
       day,
+      entrada: dayTxs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0),
+      saida:   dayTxs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
+    }
+  })
+
+  // Agrupa por categoria para o gráfico de pizza
+  const categoryData = transactions
+    .filter(t => t.type === 'expense')
+    .reduce((acc: any[], tx) => {
+      const catName = tx.category?.name || 'Sem categoria'
+      const existing = acc.find(a => a.name === catName)
+      if (existing) {
+        existing.value += tx.amount
+      } else {
+        acc.push({ name: catName, value: tx.amount })
+      }
+      return acc
+    }, [])
+    .sort((a, b) => b.value - a.value)
+
+  const COLORS = ['#22c55e', '#8b5cf6', '#3b82f6', '#f59e0b', '#ef4444', '#06b6d4', '#ec4899']
       entrada: dayTxs.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0),
       saída:   dayTxs.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0),
     }
@@ -100,31 +122,65 @@ export default function DashboardPage() {
 
       {/* Chart */}
       {chartData.length > 0 && (
-        <div className="card">
-          <h2 className="font-semibold text-white mb-4">Fluxo do mês</h2>
-          <ResponsiveContainer width="100%" height={200}>
-            <AreaChart data={chartData}>
-              <defs>
-                <linearGradient id="colorEntrada" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
-                </linearGradient>
-                <linearGradient id="colorSaida" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-              <XAxis dataKey="day" stroke="#64748b" tick={{ fontSize: 12 }} />
-              <YAxis stroke="#64748b" tick={{ fontSize: 12 }} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
-              <Tooltip
-                contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 12 }}
-                formatter={(value: number) => formatCurrency(value)}
-              />
-              <Area type="monotone" dataKey="entrada" stroke="#22c55e" fill="url(#colorEntrada)" strokeWidth={2} />
-              <Area type="monotone" dataKey="saída"   stroke="#ef4444" fill="url(#colorSaida)"   strokeWidth={2} />
-            </AreaChart>
-          </ResponsiveContainer>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="card md:col-span-2">
+            <h2 className="font-semibold text-white mb-4">Fluxo do mês</h2>
+            <ResponsiveContainer width="100%" height={240}>
+              <AreaChart data={chartData}>
+                <defs>
+                  <linearGradient id="colorEntrada" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#22c55e" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#22c55e" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorSaida" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+                <XAxis dataKey="day" stroke="#64748b" tick={{ fontSize: 12 }} />
+                <YAxis stroke="#64748b" tick={{ fontSize: 12 }} tickFormatter={v => `R$${v}`} />
+                <Tooltip
+                  contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 12 }}
+                  formatter={(value: number) => formatCurrency(value)}
+                />
+                <Area type="monotone" dataKey="entrada" stroke="#22c55e" fillOpacity={1} fill="url(#colorEntrada)" strokeWidth={2} />
+                <Area type="monotone" dataKey="saida"   stroke="#ef4444" fillOpacity={1} fill="url(#colorSaida)"   strokeWidth={2} />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="card">
+            <h2 className="font-semibold text-white mb-4">Gastos por Categoria</h2>
+            <div className="h-[240px] flex flex-col items-center justify-center">
+              {categoryData.length > 0 ? (
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={80}
+                      paddingAngle={5}
+                      dataKey="value"
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 12 }}
+                      formatter={(value: number) => formatCurrency(value)}
+                    />
+                    <Legend verticalAlign="bottom" height={36}/>
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <p className="text-dark-500 text-sm">Sem gastos no período</p>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
