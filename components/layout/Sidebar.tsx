@@ -52,7 +52,7 @@ export default function Sidebar() {
         <span className="font-bold text-lg text-white">FinVox</span>
       </div>
 
-      {/* Nav */}
+      {/* Nav v2 */}
       <nav className="flex-1 px-2 py-4 space-y-1">
         {navItems.map(({ href, label, icon: Icon }) => (
           <Link
