@@ -4,11 +4,12 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, ArrowLeftRight, Target, Calendar, Landmark,
-  LogOut, TrendingUp, Menu, X
+  LogOut, TrendingUp, Menu, X, Palette
 } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase'
 
 const navItems = [
   { href: '/dashboard',     label: 'Dashboard',     icon: LayoutDashboard },
@@ -23,10 +24,22 @@ export default function Sidebar() {
   const router   = useRouter()
   const { profile, signOut } = useAuth()
   const [open, setOpen] = useState(false)
+  const supabase = createClient()
 
   async function handleSignOut() {
     await signOut()
     router.push('/auth/login')
+  }
+
+  async function toggleTheme() {
+    const newTheme = profile?.theme === 'purple' ? 'green' : 'purple'
+    await supabase
+      .from('profiles')
+      .update({ theme: newTheme })
+      .eq('id', profile?.id)
+    
+    // Forçar atualização local ou recarregar se necessário
+    window.location.reload()
   }
 
   const SidebarContent = () => (
@@ -70,6 +83,13 @@ export default function Sidebar() {
             <p className="text-xs text-dark-500 truncate">{profile?.email}</p>
           </div>
         </div>
+        <button
+          onClick={toggleTheme}
+          className="flex items-center gap-3 px-3 py-2 w-full rounded-xl text-sm text-dark-400 hover:bg-dark-800 hover:text-primary-400 transition-colors mb-1"
+        >
+          <Palette className="w-5 h-5" />
+          Mudar Cor
+        </button>
         <button
           onClick={handleSignOut}
           className="flex items-center gap-3 px-3 py-2 w-full rounded-xl text-sm text-dark-400 hover:bg-dark-800 hover:text-red-400 transition-colors"
