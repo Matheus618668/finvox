@@ -77,17 +77,25 @@ export async function parseTransactionFromText(text: string): Promise<VoiceParse
   const today     = new Date().toISOString().split('T')[0]
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
 
-  const prompt = `Você é um assistente financeiro. Extraia os dados da transação do texto abaixo.
+  const prompt = `Você é um assistente financeiro inteligente. Extraia os dados da transação do texto abaixo.
 Hoje é ${today}. Ontem foi ${yesterday}.
 
 Responda APENAS com JSON válido, sem markdown:
 {"type":"income|expense|unknown","amount":numero_ou_null,"description":"descrição curta","category_suggestion":"categoria em português ou null","date":"YYYY-MM-DD ou null"}
 
-Regras:
+Regras de Categoria Inteligente:
+- Se for transporte (Uber, 99, Táxi, Combustível, Estacionamento) → use "Transporte"
+- Se for comida (Ifood, Restaurante, Mercado, Lanche, Pizza, Café) → use "Alimentação"
+- Se for lazer (Netflix, Cinema, Spotify, Show, Bar, Viagem) → use "Lazer"
+- Se for casa (Aluguel, Luz, Água, Internet, Condomínio, Faxina) → use "Casa"
+- Se for saúde (Farmácia, Médico, Dentista, Exame) → use "Saúde"
+- Se for salário (Pix recebido, Salário, Bônus, Dividendos) → use "Salário"
+
+Regras Gerais:
 - "gastei","paguei","comprei","saiu" → expense
 - "recebi","ganhei","entrou","depositei" → income
 - Extraia só o número do valor (ignore "reais","R$","conto","real")
-- description: máximo 50 caracteres
+- description: máximo 50 caracteres (Ex: "Uber para o trabalho")
 - Se não mencionar data → use ${today}
 
 Texto: "${text}"`
