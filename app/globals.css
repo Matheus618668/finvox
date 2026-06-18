@@ -6,6 +6,11 @@
   :root {
     --background: 15 23 42;
     --foreground: 241 245 249;
+    --primary: 34 197 94;
+  }
+
+  [data-theme='purple'] {
+    --primary: 139 92 246;
   }
 
   * {
