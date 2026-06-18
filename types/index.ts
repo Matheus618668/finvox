@@ -12,6 +12,7 @@ export interface Profile {
   email: string | null
   avatar_url: string | null
   currency: string
+  theme: 'green' | 'purple'
   created_at: string
 }
 
