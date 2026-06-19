@@ -8,27 +8,27 @@ import Navbar from '@/components/Navbar'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'FinVox - Financas por voz',
-  description: 'Gerencie suas financas com comandos de voz',
-  manifest: '/manifest.json',
-  appleWebApp: { capable: true, statusBarStyle: 'default', title: 'FinVox' },
+  title: 'FinVox',
+  description: 'Gere suas financas por voz',
 }
 
 export const viewport: Viewport = {
-  themeColor: '#22c55e',
   width: 'device-width',
   initialScale: 1,
+  maximumScale: 1,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang='pt-BR' className='dark'>
-      <body className={inter.className + ' bg-black text-white min-h-screen antialiased overflow-x-hidden'}>
+    <html lang='pt-BR'>
+      <body className={inter.className + ' bg-black'}>
         <ThemeWrapper>
-          <div className='flex flex-col min-h-screen w-full overflow-x-hidden'>
+          <div className='flex flex-col min-h-screen'>
             <Navbar />
-            <main className='flex-1 w-full max-w-screen-xl mx-auto px-4 pb-24 pt-4 overflow-x-hidden'>
-              {children}
+            <main className='flex-1 w-full px-4 pt-4 pb-20'>
+              <div className='max-w-md mx-auto'>
+                {children}
+              </div>
             </main>
           </div>
         </ThemeWrapper>
