@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import ThemeWrapper from '@/components/theme/ThemeWrapper'
+import Navbar from '@/components/Navbar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -11,39 +12,27 @@ export const metadata: Metadata = {
   description: 'Gerencie suas financas com comandos de voz',
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'FinVox' },
-  icons: [
-    { rel: 'icon', url: '/favicon-32.png', sizes: '32x32', type: 'image/png' },
-    { rel: 'apple-touch-icon', url: '/apple-touch-icon.png' },
-  ],
 }
 
 export const viewport: Viewport = {
   themeColor: '#22c55e',
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang='pt-BR'>
-      <body className={inter.className + ' bg-dark-950 overflow-x-hidden'}>
+    <html lang='pt-BR' className='dark'>
+      <body className={inter.className + ' bg-black text-white min-h-screen antialiased overflow-x-hidden'}>
         <ThemeWrapper>
-          <main className='w-full max-w-full overflow-x-hidden'>
-            {children}
-          </main>
+          <div className='flex flex-col min-h-screen w-full overflow-x-hidden'>
+            <Navbar />
+            <main className='flex-1 w-full max-w-screen-xl mx-auto px-4 pb-24 pt-4 overflow-x-hidden'>
+              {children}
+            </main>
+          </div>
         </ThemeWrapper>
-        <Toaster
-          position='top-right'
-          toastOptions={{
-            style: {
-              background: '#1e293b',
-              color: '#f1f5f9',
-              border: '1px solid #334155',
-            },
-          }}
-        />
+        <Toaster position='top-center' />
       </body>
     </html>
   )
