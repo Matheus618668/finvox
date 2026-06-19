@@ -7,8 +7,8 @@ import ThemeWrapper from '@/components/theme/ThemeWrapper'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'FinVox — Finanças por voz',
-  description: 'Gerencie suas finanças com comandos de voz',
+  title: 'FinVox - Financas por voz',
+  description: 'Gerencie suas financas com comandos de voz',
   manifest: '/manifest.json',
   appleWebApp: { capable: true, statusBarStyle: 'default', title: 'FinVox' },
   icons: [
@@ -22,17 +22,20 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt-BR">
-      <body className={`${inter.className} bg-dark-950`}>
+    <html lang='pt-BR'>
+      <body className={inter.className + ' bg-dark-950 overflow-x-hidden'}>
         <ThemeWrapper>
-          {children}
+          <main className='w-full max-w-full overflow-x-hidden'>
+            {children}
+          </main>
         </ThemeWrapper>
         <Toaster
-          position="top-right"
+          position='top-right'
           toastOptions={{
             style: {
               background: '#1e293b',
