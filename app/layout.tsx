@@ -21,13 +21,15 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang='pt-BR'>
-      <body className={inter.className + ' bg-black text-white'}>
+    <html lang='pt-BR' className='dark'>
+      <body className={inter.className + ' bg-black text-white selection:bg-primary-500/30'}>
         <ThemeWrapper>
-          <div className='flex min-h-screen bg-black overflow-x-hidden'>
+          <div className='flex min-h-screen bg-black'>
             <Sidebar />
-            <main className='flex-1 w-full p-4 pb-32 md:pl-72'>
-              {children}
+            <main className='flex-1 w-full flex flex-col min-w-0'>
+              <div className='flex-1 w-full max-w-[100vw] px-4 pt-20 pb-32 lg:pt-8 lg:px-8 lg:pl-8'>
+                {children}
+              </div>
             </main>
           </div>
         </ThemeWrapper>
