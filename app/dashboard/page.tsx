@@ -8,8 +8,12 @@ import VoiceInputModal from '@/components/voice/VoiceInputModal'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 export default function DashboardPage() {
-  const now = new Date(); const [month, setMonth] = useState(now.getMonth() + 1); const [year, setYear] = useState(now.getFullYear()); const [showVoice, setShowVoice] = useState(false)
-  const { profile } = useAuth(); const { transactions, summary, refresh } = useTransactions(month, year)
+  const now = new Date()
+  const [month, setMonth] = useState(now.getMonth() + 1)
+  const [year, setYear] = useState(now.getFullYear())
+  const [showVoice, setShowVoice] = useState(false)
+  const { profile } = useAuth()
+  const { transactions, summary, refresh } = useTransactions(month, year)
   function prevMonth() { if (month === 1) { setMonth(12); setYear(y => y - 1) } else setMonth(m => m - 1) }
   function nextMonth() { if (month === 12) { setMonth(1); setYear(y => y + 1) } else setMonth(m => m + 1) }
   const chartData = Array.from({ length: new Date(year, month, 0).getDate() }, (_, i) => {
@@ -34,7 +38,7 @@ export default function DashboardPage() {
       <div className='bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden'>
         <div className='p-4 border-b border-slate-800'><h2 className='text-sm font-bold text-white'>Ultimas Atividades</h2></div>
         <div className='divide-y divide-slate-800'>
-          {recentTxs.map(tx => (<div key={tx.id} className='flex items-center justify-between p-4 active:bg-slate-800 transition-colors'><div className='flex items-center gap-3'><div className='w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-lg'>{tx.category?.icon ?? 'money'}</div><div><p className='text-sm font-bold text-slate-200 line-clamp-1'>{tx.description}</p><p className='text-[10px] text-slate-500'>{formatDate(tx.date)}</p></div></div><p className={'text-sm font-bold ' + (tx.type === 'income' ? 'text-green-500' : 'text-red-500')}>{tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}</p></div>))}
+          {recentTxs.map(tx => (<div key={tx.id} className='flex items-center justify-between p-4 active:bg-slate-800 transition-colors'><div className='flex items-center gap-3'><div className='w-10 h-10 bg-slate-800 rounded-full flex items-center justify-center text-lg'>💰</div><div><p className='text-sm font-bold text-slate-200 line-clamp-1'>{tx.description}</p><p className='text-[10px] text-slate-500'>{formatDate(tx.date)}</p></div></div><p className={'text-sm font-bold ' + (tx.type === 'income' ? 'text-green-500' : 'text-red-500')}>{tx.type === 'income' ? '+' : '-'}{formatCurrency(tx.amount)}</p></div>))}
         </div>
       </div>
       <div className='fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-xs px-4'><button onClick={() => setShowVoice(true)} className='w-full bg-green-600 hover:bg-green-700 h-14 rounded-2xl flex items-center justify-center gap-2 shadow-2xl shadow-green-900/20 active:scale-95 transition-transform'><Mic className='w-5 h-5 text-white' /><span className='text-white font-bold text-sm'>Lancar com Voz</span></button></div>
