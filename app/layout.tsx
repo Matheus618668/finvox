@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import ThemeWrapper from '@/components/theme/ThemeWrapper'
-import Navbar from '@/components/Navbar'
+import Sidebar from '@/components/layout/Sidebar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,17 +16,18 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
+  userScalable: false,
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang='pt-BR'>
-      <body className={inter.className + ' bg-black'}>
+      <body className={inter.className + ' bg-black text-white'}>
         <ThemeWrapper>
-          <div className='flex flex-col min-h-screen'>
-            <Navbar />
-            <main className='flex-1 w-full px-4 pt-4 pb-20'>
-              <div className='max-w-md mx-auto'>
+          <div className='flex min-h-screen bg-black'>
+            <Sidebar />
+            <main className='flex-1 w-full p-4 pb-24 md:pl-72'>
+              <div className='max-w-2xl mx-auto'>
                 {children}
               </div>
             </main>
