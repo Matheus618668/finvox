@@ -18,57 +18,21 @@
     -webkit-tap-highlight-color: transparent;
   }
 
-  body {
-    @apply bg-dark-950 text-dark-50 antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overflow-x: hidden;
   }
 
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    @apply bg-dark-900;
-  }
-  ::-webkit-scrollbar-thumb {
-    @apply bg-dark-600 rounded-full;
+  body {
+    @apply bg-black text-slate-50 antialiased;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 }
 
 @layer components {
-  .card {
-    @apply bg-dark-800 border border-dark-700 rounded-2xl p-4;
-  }
-
-  .btn-primary {
-    @apply bg-primary-500 hover:bg-primary-600 text-white font-semibold
-           px-4 py-2 rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
-  }
-
-  .btn-secondary {
-    @apply bg-dark-700 hover:bg-dark-600 text-dark-100 font-semibold
-           px-4 py-2 rounded-xl transition-colors;
-  }
-
-  .btn-ghost {
-    @apply hover:bg-dark-800 text-dark-300 hover:text-dark-100
-           px-4 py-2 rounded-xl transition-colors;
-  }
-
-  .input {
-    @apply w-full bg-dark-900 border border-dark-700 rounded-xl px-4 py-3
-           text-dark-50 placeholder-dark-500 focus:outline-none focus:ring-2
-           focus:ring-primary-500 focus:border-transparent transition;
-  }
-
-  .label {
-    @apply text-sm font-medium text-dark-300 mb-1.5 block;
-  }
-
-  .badge-income {
-    @apply bg-primary-500/20 text-primary-400 text-xs font-semibold px-2 py-0.5 rounded-full;
-  }
-
-  .badge-expense {
-    @apply bg-red-500/20 text-red-400 text-xs font-semibold px-2 py-0.5 rounded-full;
-  }
+  .card { @apply bg-slate-900 border border-slate-800 rounded-2xl p-4; }
+  .btn-primary { @apply bg-green-600 hover:bg-green-700 text-white font-semibold px-4 py-2 rounded-xl transition-colors; }
+  .input { @apply w-full bg-slate-900 border border-slate-800 rounded-xl px-4 py-3 text-slate-50 focus:ring-2 focus:ring-green-500 outline-none; }
 }
