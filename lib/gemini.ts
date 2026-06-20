@@ -2,7 +2,6 @@ import { VoiceParseResult } from '@/types'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!
 
-// Modelos em ordem de preferência — usando versões estáveis
 const MODELS = [
   'gemini-1.5-flash',
   'gemini-1.5-pro',
@@ -19,7 +18,9 @@ async function callModel(model: string, contents: any[]): Promise<string> {
   if (!res.ok) {
     const err = await res.json().catch(() => ({}))
     const code = err?.error?.code ?? res.status
-    throw Object.assign(new Error(`Gemini ${model} error ${code}`), { code, retryable: code === 429 || code === 503 })
+    const message = err?.error?.message ?? 'Unknown error'
+    console.error(`[gemini] Error ${code} on ${model}:`, message)
+    throw Object.assign(new Error(`Gemini ${model} error ${code}`), { code, message, retryable: code === 429 || code === 503 })
   }
 
   const data = await res.json()
@@ -35,7 +36,7 @@ async function callGemini(contents: any[]): Promise<string> {
     } catch (err: any) {
       lastError = err
       console.warn(`[gemini] ${model} falhou (${err.code}), tentando próximo...`)
-      if (err.code === 404) continue // Modelo não existe nesta conta/região
+      if (err.code === 404) continue 
       if (!err.retryable) throw err
     }
   }
@@ -43,16 +44,12 @@ async function callGemini(contents: any[]): Promise<string> {
   throw lastError
 }
 
-// ─── Normalização de mimeType ─────────────────────────────────────────────────
-
 function normalizeMimeType(mimeType: string): string {
   if (mimeType.includes('x-m4a') || mimeType.includes('m4a')) return 'audio/mp4'
   if (mimeType.includes('webm')) return 'audio/webm'
   if (mimeType.includes('ogg'))  return 'audio/ogg'
   return mimeType.split(';')[0]
 }
-
-// ─── Transcrição ──────────────────────────────────────────────────────────────
 
 export async function transcribeAudio(audioBuffer: Buffer, mimeType = 'audio/webm'): Promise<string> {
   const base64 = audioBuffer.toString('base64')
@@ -69,8 +66,6 @@ export async function transcribeAudio(audioBuffer: Buffer, mimeType = 'audio/web
 
   return text.trim()
 }
-
-// ─── Parsing ──────────────────────────────────────────────────────────────────
 
 export async function parseTransactionFromText(text: string): Promise<VoiceParseResult> {
   const today     = new Date().toISOString().split('T')[0]
