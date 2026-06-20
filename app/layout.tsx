@@ -3,7 +3,6 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import ThemeWrapper from '@/components/theme/ThemeWrapper'
-import Sidebar from '@/components/layout/Sidebar'
 import React from 'react'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -27,16 +26,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className="dark">
-      <body className={inter.className + ' bg-black text-white antialiased overflow-x-hidden w-full'}>
+      <body className={inter.className + ' bg-black text-white antialiased overflow-x-hidden'}>
         <ThemeWrapper>
-          <div className="flex flex-col lg:flex-row min-h-screen bg-black w-full overflow-x-hidden">
-            <Sidebar />
-            <main className="flex-1 w-full overflow-x-hidden min-w-0">
-              <div className="w-full px-4 pt-24 pb-32 lg:pt-8 lg:px-8">
-                {children}
-              </div>
-            </main>
-          </div>
+          {children}
         </ThemeWrapper>
         <Toaster position="top-center" />
       </body>
