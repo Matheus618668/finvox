@@ -2,16 +2,15 @@ import { VoiceParseResult } from '@/types'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!
 
-// Usando apenas modelos garantidos para a v1beta
+// O formato correto para a v1beta é 'models/nome-do-modelo'
 const MODELS = [
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-8b',
-  'gemini-1.5-pro'
+  'models/gemini-1.5-flash',
+  'models/gemini-1.5-pro',
+  'models/gemini-1.0-pro'
 ]
 
 async function callModel(model: string, contents: any[]): Promise<string> {
-  // Garantindo que o nome do modelo está no formato correto para a URL
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`
+  const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${GEMINI_API_KEY}`
   
   const res = await fetch(url, {
     method: 'POST',
@@ -24,13 +23,7 @@ async function callModel(model: string, contents: any[]): Promise<string> {
     const code = err?.error?.code ?? res.status
     const message = err?.error?.message ?? 'Unknown error'
     console.error(`[gemini] Error ${code} on ${model}:`, message)
-    
-    // Se o erro for 404 (modelo não existe), vamos tentar o próximo
-    if (code === 404) {
-        throw Object.assign(new Error('Model not found'), { code: 404 })
-    }
-    
-    throw Object.assign(new Error(`Gemini ${model} error ${code}`), { code, message, retryable: code === 429 || code === 503 })
+    throw Object.assign(new Error(`Gemini ${model} error ${code}`), { code, message, retryable: code === 429 || code === 503 || code === 404 })
   }
 
   const data = await res.json()
@@ -45,7 +38,7 @@ async function callGemini(contents: any[]): Promise<string> {
       return await callModel(model, contents)
     } catch (err: any) {
       lastError = err
-      console.warn(`[gemini] ${model} falhou, tentando próximo...`)
+      console.warn(`[gemini] ${model} falhou (${err.code}), tentando próximo...`)
       if (err.code === 404 || err.code === 400) continue 
       if (!err.retryable) throw err
     }
