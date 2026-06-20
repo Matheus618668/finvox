@@ -6,10 +6,14 @@ export const metadata = {
   description: 'Gestão financeira por voz',
 }
 
-export default function RootLayout({ children }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="pt-BR">
-      <body>
+      <body className="overflow-x-hidden">
         {children}
       </body>
     </html>
