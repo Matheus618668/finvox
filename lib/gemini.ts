@@ -2,9 +2,11 @@ import { VoiceParseResult } from '@/types'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!
 
+// Modelos usando nomes canônicos compatíveis com a API v1beta
 const MODELS = [
+  'gemini-1.5-flash-latest',
+  'gemini-1.5-pro-latest',
   'gemini-1.5-flash',
-  'gemini-1.5-pro',
 ]
 
 async function callModel(model: string, contents: any[]): Promise<string> {
@@ -20,7 +22,7 @@ async function callModel(model: string, contents: any[]): Promise<string> {
     const code = err?.error?.code ?? res.status
     const message = err?.error?.message ?? 'Unknown error'
     console.error(`[gemini] Error ${code} on ${model}:`, message)
-    throw Object.assign(new Error(`Gemini ${model} error ${code}`), { code, message, retryable: code === 429 || code === 503 })
+    throw Object.assign(new Error(`Gemini ${model} error ${code}`), { code, message, retryable: code === 429 || code === 503 || code === 404 })
   }
 
   const data = await res.json()
@@ -36,7 +38,7 @@ async function callGemini(contents: any[]): Promise<string> {
     } catch (err: any) {
       lastError = err
       console.warn(`[gemini] ${model} falhou (${err.code}), tentando próximo...`)
-      if (err.code === 404) continue 
+      if (err.code === 404 || err.code === 400) continue 
       if (!err.retryable) throw err
     }
   }
