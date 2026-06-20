@@ -2,11 +2,10 @@ import { VoiceParseResult } from '@/types'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!
 
-// Modelos em ordem de preferência — tenta o próximo se o anterior falhar
+// Modelos em ordem de preferência — usando versões estáveis
 const MODELS = [
-  'gemini-2.0-flash',
-  'gemini-2.5-flash',
-  'gemini-2.0-flash-lite',
+  'gemini-1.5-flash',
+  'gemini-1.5-pro',
 ]
 
 async function callModel(model: string, contents: any[]): Promise<string> {
@@ -36,7 +35,7 @@ async function callGemini(contents: any[]): Promise<string> {
     } catch (err: any) {
       lastError = err
       console.warn(`[gemini] ${model} falhou (${err.code}), tentando próximo...`)
-      // Se não é erro de quota/sobrecarga, não adianta tentar outro modelo
+      if (err.code === 404) continue // Modelo não existe nesta conta/região
       if (!err.retryable) throw err
     }
   }
@@ -103,7 +102,7 @@ Texto: "${text}"`
   const raw = await callGemini([{ parts: [{ text: prompt }] }])
 
   try {
-    const clean  = raw.replace(/```json|```/g, '').trim()
+    const clean  = raw.replace(/\`\`\`json|\`\`\`/g, '').trim()
     const parsed = JSON.parse(clean)
     return { ...parsed, raw: text }
   } catch {
