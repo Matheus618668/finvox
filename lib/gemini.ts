@@ -2,15 +2,14 @@ import { VoiceParseResult } from '@/types'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!
 
-// O formato correto para a v1beta é 'models/nome-do-modelo'
 const MODELS = [
-  'models/gemini-1.5-flash',
-  'models/gemini-1.5-pro',
-  'models/gemini-1.0-pro'
+  'gemini-1.5-flash',
+  'gemini-1.5-pro',
 ]
 
 async function callModel(model: string, contents: any[]): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/${model}:generateContent?key=${GEMINI_API_KEY}`
+  // A URL correta deve ter o 'models/' antes do nome, mas fora do parâmetro se usarmos o path direto
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`
   
   const res = await fetch(url, {
     method: 'POST',
