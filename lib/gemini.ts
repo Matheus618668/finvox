@@ -2,15 +2,12 @@ import { VoiceParseResult } from '@/types'
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!
 
-// Na API v1beta, o nome do modelo deve ser apenas 'gemini-1.5-flash'
-const MODELS = [
-  'gemini-1.5-flash',
-  'gemini-1.5-pro',
-]
+// Apenas o modelo que temos certeza que funciona na v1beta
+const MODELS = ['gemini-1.5-flash']
 
 async function callModel(model: string, contents: any[]): Promise<string> {
-  // A URL correta: o 'models/' já faz parte do path da API, então o parâmetro deve ser o nome limpo
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`
+  // Construção manual da URL sem concatenar 'models/' no parâmetro, usando o path completo
+  const url = 'https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + GEMINI_API_KEY
   
   const res = await fetch(url, {
     method: 'POST',
@@ -22,8 +19,8 @@ async function callModel(model: string, contents: any[]): Promise<string> {
     const err = await res.json().catch(() => ({}))
     const code = err?.error?.code ?? res.status
     const message = err?.error?.message ?? 'Unknown error'
-    console.error(`[gemini] Error ${code} on ${model}:`, message)
-    throw Object.assign(new Error(`Gemini ${model} error ${code}`), { code, message, retryable: code === 429 || code === 503 || code === 404 })
+    console.error('[gemini] Error ' + code + ': ' + message)
+    throw Object.assign(new Error('Gemini error ' + code), { code, message })
   }
 
   const data = await res.json()
@@ -32,19 +29,15 @@ async function callModel(model: string, contents: any[]): Promise<string> {
 
 async function callGemini(contents: any[]): Promise<string> {
   let lastError: any
-
   for (const model of MODELS) {
     try {
       return await callModel(model, contents)
     } catch (err: any) {
       lastError = err
-      console.warn(`[gemini] ${model} falhou (${err.code}), tentando próximo...`)
-      // Se for 404 ou 400 (modelo inválido), tentamos o próximo
-      if (err.code === 404 || err.code === 400) continue 
-      if (!err.retryable) throw err
+      if (err.code === 404 || err.code === 400) continue
+      throw err
     }
   }
-
   throw lastError
 }
 
@@ -75,33 +68,22 @@ export async function parseTransactionFromText(text: string): Promise<VoiceParse
   const today     = new Date().toISOString().split('T')[0]
   const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0]
 
-  const prompt = `Você é um assistente financeiro inteligente. Extraia os dados da transação do texto abaixo.
-Hoje é ${today}. Ontem foi ${yesterday}.
+  const prompt = 'Você é um assistente financeiro inteligente. Extraia os dados da transação do texto abaixo.
+' +
+    'Hoje é ' + today + '. Ontem foi ' + yesterday + '.
 
-Responda APENAS com JSON válido, sem markdown:
-{"type":"income|expense|unknown","amount":numero_ou_null,"description":"descrição curta","category_suggestion":"categoria em português ou null","date":"YYYY-MM-DD ou null"}
+' +
+    'Responda APENAS com JSON válido, sem markdown:
+' +
+    '{"type":"income|expense|unknown","amount":numero_ou_null,"description":"descrição curta","category_suggestion":"categoria em português ou null","date":"YYYY-MM-DD ou null"}
 
-Regras de Categoria Inteligente:
-- Se for transporte (Uber, 99, Táxi, Combustível, Estacionamento) → use "Transporte"
-- Se for comida (Ifood, Restaurante, Mercado, Lanche, Pizza, Café) → use "Alimentação"
-- Se for lazer (Netflix, Cinema, Spotify, Show, Bar, Viagem) → use "Lazer"
-- Se for casa (Aluguel, Luz, Água, Internet, Condomínio, Faxina) → use "Casa"
-- Se for saúde (Farmácia, Médico, Dentista, Exame) → use "Saúde"
-- Se for salário (Pix recebido, Salário, Bônus, Dividendos) → use "Salário"
-
-Regras Gerais:
-- "gastei","paguei","comprei","saiu" → expense
-- "recebi","ganhei","entrou","depositei" → income
-- Extraia só o número do valor (ignore "reais","R$","conto","real")
-- description: máximo 50 caracteres (Ex: "Uber para o trabalho")
-- Se não mencionar data → use ${today}
-
-Texto: "${text}"`
+' +
+    'Texto: "' + text + '"'
 
   const raw = await callGemini([{ parts: [{ text: prompt }] }])
 
   try {
-    const clean  = raw.replace(/\`\`\`json|\`\`\`/g, '').trim()
+    const clean  = raw.replace(//g, '').trim()
     const parsed = JSON.parse(clean)
     return { ...parsed, raw: text }
   } catch {
